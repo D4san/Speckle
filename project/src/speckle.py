@@ -1,32 +1,59 @@
 import numpy as np
 from numpy.lib.stride_tricks import sliding_window_view
 from scipy.optimize import curve_fit
-from numpy.fft import fft2, ifft2, fftshift
+from numpy.fft import fft2, ifft2, fftshift, fftfreq
 from scipy.ndimage import uniform_filter # Necesario para radial_fd si se usa
 
 def generate_speckle(N=1024, fwhm=40):
-    # malla de frecuencias
-    kx = np.fft.fftfreq(N)
-    ky = np.fft.fftfreq(N)
-    kx, ky = np.meshgrid(kx, ky, indexing='ij')
+    """
+    Genera un patrón sintético de speckle con tamaño de grano controlado por FWHM.
+
+    Parámetros:
+    - N (int): tamaño de la imagen (N x N píxeles).
+    - fwhm (float): ancho completo a mitad de altura del grano de speckle en píxeles.
+
+    Retorna:
+    - I_norm (ndarray): imagen de intensidad de speckle normalizada (media = 1).
+
+    Descripción del algoritmo:
+    1. Se crea una rejilla de frecuencias (kx, ky) en unidades de ciclos/píxel.
+    2. Se calcula el desvío estándar espacial sigma_x a partir de la FWHM:  
+       sigma_x = fwhm / (2*sqrt(2*ln2))  # píxeles
+    3. Se obtiene el desvío en frecuencia sigma_k usando la relación inversa:
+       sigma_k = 1 / (2*pi*sigma_x)      # ciclos/píxel
+    4. Se define la envolvente gaussiana en k-espacio:
+       E(k) = exp(- (kx^2 + ky^2) / (2*sigma_k^2) )
+    5. Se genera fase aleatoria uniforme en [0,2π).  
+    6. Se construye el campo en k-espacio U = sqrt(E) * exp(i*phase).  
+    7. Se aplica IFFT para obtener el campo u(x) en espacio real.  
+    8. Se calcula la intensidad I = |u|^2 y se normaliza para que su media sea 1.
+    """
+    # 1. Malla de frecuencias (ciclos/píxel)
+    kx = fftfreq(N).reshape(N, 1)
+    ky = fftfreq(N).reshape(1, N)
     k2 = kx**2 + ky**2
-    # Corrección: sigma se calcula a partir de fwhm y N (tamaño de la imagen en píxeles)
-    # El factor N en el denominador es para normalizar fwhm a unidades de frecuencia k.
-    sigma_k = fwhm / (2 * np.sqrt(2 * np.log(2)) * N) 
+
+    # 2. Ancho espacial deseado (sigma_x)
+    sigma_x = fwhm / (2 * np.sqrt(2 * np.log(2)))
+    # 3. Ancho en frecuencia (sigma_k), inversamente proporcional a sigma_x
+    sigma_k = 1.0 / (2 * np.pi * sigma_x)
+
+    # 4. Envolvente gaussiana en k-espacio
     envelope = np.exp(-k2 / (2 * sigma_k**2))
 
+    # 5. Fase aleatoria
     phase = np.random.uniform(0, 2 * np.pi, size=(N, N))
+
+    # 6. Campo complejo en k-espacio
     U = envelope * np.exp(1j * phase)
-    u = ifft2(U) # Transformada inversa para pasar al espacio real
-    # Aplicar fftshift ANTES de calcular la intensidad para centrar la componente DC
-    # si se quiere visualizar el campo u. Para la intensidad I=|u|^2, el shift en u
-    # no afecta el resultado final de I si se toma np.abs()**2.
-    # Sin embargo, es común aplicar fftshift a la transformada de Fourier antes de ifft2
-    # si el filtro se define en el espacio de Fourier centrado.
-    # Aquí, kx, ky ya están en el formato que fft2 espera (no centrados).
-    # La intensidad se calcula como el módulo al cuadrado del campo complejo.
-    I = np.abs(u)**2 # No es necesario fftshift(u) aquí si kx,ky no fueron shifteados
-    return I / np.mean(I) # Normalizar la intensidad promedio a 1
+
+    # 7. Transformada inversa para obtener el campo en espacio real
+    u = ifft2(U)
+
+    # 8. Intensidad y normalización
+    I = np.abs(u)**2
+    I_norm = I / np.mean(I)
+    return I_norm
 
 def diffusion_function(img, axis=0, max_shift=None):
     if max_shift is None:

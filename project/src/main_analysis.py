@@ -159,7 +159,7 @@ if __name__ == '__main__':
     # --- Configuración General para Experimentos ---
     image_size_default = 512
     # Lista de valores FWHM para experimentar
-    fwhm_values_experiment = [10, 15, 20, 25, 30, 35, 40, 50]
+    fwhm_values_experiment = [2, 3, 5, 10, 15, 25, 35]
     # Lista de tamaños de imagen para experimentar (opcional, podríamos fijarlo por ahora)
     N_size_values_experiment = [128, 256, 512]
 
