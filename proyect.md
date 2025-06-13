@@ -12,9 +12,8 @@ Este proyecto reproduce y extiende numéricamente los resultados del artículo e
 
 1. **Replicar** la metodología del artículo para una imagen sintética: estimar coeficiente de Hurst \$H\$, varianza de saturación \$G\$ y tamaño característico \$S\$.
 2. **Validar** el ajuste de la función de difusión fractal–exponencial.
-3. **Explorar experimentos paramétricos** (p.,ej. variación de tamaño de grano, contraste, anisotropía) y evaluar cómo cambian \$(H,G,S)\$.
+3. **Explorar experimentos paramétricos** (p.,ej. variación de tamaño de grano) y evaluar cómo cambian \$(H,G,S)\$.
 4. **Conectar** la caracterización espacial con fenómenos de difusión anómala en sistemas fuera del equilibrio.
-5. **Entregar** una presentación corta (10 diapositivas máx.) y un cuaderno Jupyter auto‑contenido.
 
 ---
 
@@ -146,19 +145,6 @@ Grafique \$\log F\_D\$ vs. \$\log \Delta x\$ en la región lineal. La pendiente 
 
 ## 5. Entorno Python y estructura de proyecto
 
-```
-project/
-├─ data/
-│  └─ synthetic_speckle.npy
-├─ notebooks/
-│  └─ 01_analysis.ipynb
-├─ src/
-│  ├─ speckle.py      # funciones de generación y análisis
-│  └─ utils.py
-├─ figures/
-├─ environment.yml    # conda env
-└─ README.md
-```
 
 **Dependencias mínimas**:
 
@@ -180,64 +166,6 @@ dependencies:
   - scikit-image
 ```
 
----
-
-## 6. Programa de experimentos sugerido
-
-| Nº | Experimento                | Parámetro principal    | Resultado esperado                                        |
-| -- | -------------------------- | ---------------------- | --------------------------------------------------------- |
-| 1  | **Baseline**               | Tamaño grano mediano   | Recuperar \$H\approx0.35\$, curva de saturación suave     |
-| 2  | Reducir grano              | FWHM envolvente ↓      | \$S\$ ↓, \$G\$ similar, \$H\$ estable                     |
-| 3  | Aumentar grano             | FWHM envolvente ↑      | \$S\$ ↑, \$G\$ ↑                                          |
-| 4  | Introducir ruido gaussiano | SNR 20 dB              | Ligeras variaciones en \$G\$, \$H\$ casi invariante       |
-| 5  | Introducir anisotropía     | Envolvente elíptica    | \$S\_x\neq S\_y\$, posible \$H\_x\neq H\_y\$              |
-| 6  | «Time‑lap» 2D+1            | Secuencia \$I(x,y,t)\$ | Estimar \$H\_t\$ y comparar con difusión anómala temporal |
-
----
-
-## 7. Visualización de resultados
-
-* Figuras log–log con líneas guía.
-* Mapas de calor de intensidades.
-* Tabla comparativa \$(H,G,S)\$.
-* En la presentación: GIF de evolución temporal (experimento 6).
-
----
-
-## 8. Conexión con física estadística fuera del equilibrio
-
-1. **Difusión anómala**: simular trayectorias 2D con paso $|\Delta x|\sim \alpha^{-1/(2H)}$ y comparar su función MSD con \$F\_D\$ espacial.
-2. **Ecuación de Fokker–Planck efectiva**: derivar coeficiente de difusión \$D(x)\propto |x|^{2H-2}\$ y mostrar solución estacionaria.
-3. **Entropía de Shannon**: evaluar \$S=-\sum p\_I\log p\_I\$ para histogramas de intensidad y su evolución con grano.
-
----
-
-## 9. Plan de presentación (10 diapositivas)
-
-1. Motivación y contexto.
-2. Estadística de *speckle*.
-3. Teoría FBM y función de difusión.
-4. Objetivos del proyecto.
-5. Metodología numérica.
-6. Resultados clave (experimentos 1–3).
-7. Anisotropía y extensión temporal.
-8. Conexión con difusión anómala.
-9. Conclusiones y trabajo futuro.
-10. Preguntas.
-
----
-
-## 10. Cronograma sugerido
-
-| Semana | Actividad                                           |
-| ------ | --------------------------------------------------- |
-| 1      | Montaje del entorno y generación de patrón baseline |
-| 2      | Implementar cálculo de \$F\_D\$ y ajuste no lineal  |
-| 3      | Realizar experimentos 2–4                           |
-| 4      | Experimentos 5–6 y validación                       |
-| 5      | Análisis, figuras y escritura de presentación       |
-
----
 
 ## 11. Bibliografía mínima
 
